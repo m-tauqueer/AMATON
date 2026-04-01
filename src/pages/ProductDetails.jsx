@@ -1,10 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { FiHeart, FiShoppingCart, FiStar } from "react-icons/fi";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/pagination";
 import { getProductById } from "../services/api";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
@@ -18,6 +14,7 @@ const ProductDetails = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [activeImage, setActiveImage] = useState(0);
 
   const fetchProduct = useCallback(async () => {
     try {
@@ -44,6 +41,10 @@ const ProductDetails = () => {
     return [product.image, product.image, product.image];
   }, [product]);
 
+  useEffect(() => {
+    setActiveImage(0);
+  }, [product]);
+
   if (loading) {
     return <LoadingState message="Loading product details..." />;
   }
@@ -60,13 +61,22 @@ const ProductDetails = () => {
     <div className="container page-block details-page">
       <div className="details-grid">
         <div className="gallery-card">
-          <Swiper pagination={{ clickable: true }} modules={[Pagination]}>
+          <img
+            src={galleryImages[activeImage]}
+            alt={`${product.title} ${activeImage + 1}`}
+          />
+
+          <div className="thumb-row">
             {galleryImages.map((src, index) => (
-              <SwiperSlide key={`${src}-${index}`}>
-                <img src={src} alt={`${product.title} ${index + 1}`} />
-              </SwiperSlide>
+              <button
+                key={`${src}-${index}`}
+                className={activeImage === index ? "thumb-btn active" : "thumb-btn"}
+                onClick={() => setActiveImage(index)}
+              >
+                <img src={src} alt={`${product.title} thumbnail ${index + 1}`} />
+              </button>
             ))}
-          </Swiper>
+          </div>
         </div>
 
         <div className="details-content">
